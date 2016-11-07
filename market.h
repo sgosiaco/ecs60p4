@@ -26,7 +26,7 @@ public:
   void print();
   int count;
   int transCount;
-  int offerCount;
+  int offerC;
   Stock *stocks;
   Transaction *transactions;
 }; // class Market

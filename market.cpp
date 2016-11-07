@@ -34,14 +34,13 @@ Market::Market(int numStocks, int offerCount, int IDs)
 {
   count = 0;
   transCount = 0;
-  offerCount = 0;
+  offerC = 0;
   stocks = new Stock[numStocks];
   transactions = new Transaction[offerCount];
 } // Market()
 
 void Market::newOffer(const Offer &offer)
 {
-  offerCount++;
   //cout << offer.type << ' ' << offer.price << ' ' << offer.shares << ' ' << offer.symbol << endl;
   int offerPos;
   for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++)
@@ -53,6 +52,7 @@ void Market::newOffer(const Offer &offer)
     stocks[count++].set(20, offer.symbol);
     cout << '>' << offer.symbol << " has been added!" <<  endl;
   }
+  Offer offers = offer;
 
 
   if(offer.type == 'B') //buyer
@@ -71,14 +71,15 @@ void Market::newOffer(const Offer &offer)
       //check for sellers to make a transaction
       if(stocks[offerPos].countS > 0)
       {
-        if(stocks[offerPos].buyers[b].price == stocks[offerPos].sellers[0].price) //equal price
+        if(offers.price == stocks[offerPos].sellers[0].price) //equal price
         {
-          if(stocks[offerPos].buyers[b].shares >= stocks[offerPos].sellers[0].shares) //buyer has more or equal shares than seller
+          if(offers.shares >= stocks[offerPos].sellers[0].shares) //buyer has more or equal shares than seller
           {
             //remove seller at pos 0 and subtract share amt from buyers
-            Transaction *temp = new Transaction(offerCount, stocks[offerPos].buyers[b].ID, stocks[offerPos].sellers[0].ID, stocks[offerPos].buyers[b].price, stocks[offerPos].sellers[0].shares, stocks[offerPos].buyers[b].symbol);
+            cout << ">EQUAL and SHARES > " << offerC << endl;
+            Transaction *temp = new Transaction(offerC, offers.ID, stocks[offerPos].sellers[0].ID, offers.price, stocks[offerPos].sellers[0].shares, offers.symbol);
             transactions[transCount++] = *temp;
-            stocks[offerPos].buyers[b].shares -= stocks[offerPos].sellers[0].shares;
+            offers.shares -= stocks[offerPos].sellers[0].shares;
             for(int i = 0; i < stocks[offerPos].countS; i++)
               stocks[offerPos].sellers[i] = stocks[offerPos].sellers[i + 1];
             stocks[offerPos].countS--;
@@ -86,24 +87,38 @@ void Market::newOffer(const Offer &offer)
           }
           else //seller has more shares than buyer
           {
-            Transaction *temp = new Transaction(offerCount, stocks[offerPos].buyers[b].ID, stocks[offerPos].sellers[0].ID, stocks[offerPos].buyers[b].price, stocks[offerPos].buyers[b].shares, stocks[offerPos].buyers[b].symbol);
+            cout << ">EQUAL and SHARES <" << offerC << endl;
+            Transaction *temp = new Transaction(offerC, offers.ID, stocks[offerPos].sellers[0].ID, offers.price, offers.shares, offers.symbol);
             transactions[transCount++] = *temp;
-            stocks[offerPos].sellers[0].shares -= stocks[offerPos].buyers[b].shares;
+            stocks[offerPos].sellers[0].shares -= offers.shares;
             transCount++;
           }
         }
         else
         {
-          if(stocks[offerPos].buyers[b].price > stocks[offerPos].sellers[0].price) //greater than
+          if(offers.price > stocks[offerPos].sellers[0].price) //greater than
           {
             int p;
-            for(p = b; p < stocks[offerPos].countB && stocks[offerPos].buyers[p].price > stocks[offerPos].sellers[0].price; p++);
-            if(stocks[offerPos].buyers[b].shares >= stocks[offerPos].sellers[0].shares) //buyer has more or equal shares than seller
+            double price = 0;
+            for(p = b; p < stocks[offerPos].countB && stocks[offerPos].buyers[b].price > stocks[offerPos].sellers[0].price; p++);
+
+            if((stocks[offerPos].buyers[b].price > stocks[offerPos].sellers[0].price) && (stocks[offerPos].buyers[b].price < offers.price))
+            {
+              price = stocks[offerPos].buyers[b].price;
+              cout << "tenmp \n";
+            }
+
+            else
+              price = offers.price;
+
+            if(offers.shares >= stocks[offerPos].sellers[0].shares) //buyer has more or equal shares than seller
             {
               //remove seller at pos 0 and subtract share amt from buyers
-              Transaction *temp = new Transaction(offerCount, stocks[offerPos].buyers[b].ID, stocks[offerPos].sellers[0].ID, stocks[offerPos].buyers[p].price, stocks[offerPos].sellers[0].shares, stocks[offerPos].buyers[b].symbol);
+              cout << ">GREATER and SHARES >" << offerC << endl;
+              Transaction *temp = new Transaction(offerC, offers.ID, stocks[offerPos].sellers[0].ID, price, stocks[offerPos].sellers[0].shares, offers.symbol);
+              cout << *temp;
               transactions[transCount++] = *temp;
-              stocks[offerPos].buyers[b].shares -= stocks[offerPos].sellers[0].shares;
+              offers.shares -= stocks[offerPos].sellers[0].shares;
               for(int i = 0; i < stocks[offerPos].countS; i++)
                 stocks[offerPos].sellers[i] = stocks[offerPos].sellers[i + 1];
               stocks[offerPos].countS--;
@@ -111,21 +126,23 @@ void Market::newOffer(const Offer &offer)
             }
             else //seller has more shares than buyer
             {
-              Transaction *temp = new Transaction(offerCount, stocks[offerPos].buyers[b].ID, stocks[offerPos].sellers[0].ID, stocks[offerPos].buyers[p].price, stocks[offerPos].buyers[b].shares, stocks[offerPos].buyers[b].symbol);
+              cout << ">GREATER and SHARES <" << offerC << endl;
+              Transaction *temp = new Transaction(offerC, offers.ID, stocks[offerPos].sellers[0].ID, price, offers.shares, offers.symbol);
               transactions[transCount++] = *temp;
-              stocks[offerPos].sellers[0].shares -= stocks[offerPos].buyers[b].shares;
+              stocks[offerPos].sellers[0].shares -= offers.shares;
+              offers.shares = 0;
               transCount++;
             }
           }
         }
       }
     }
-    if(offer.shares != 0) //if after transaction or if b != 0
+    if(offers.shares != 0) //if after transaction or if b != 0
     {
       //move everything up to make space
       for(int k = stocks[offerPos].countB - 1; k >= b; k--)
         stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
-      stocks[offerPos].buyers[b] = offer;
+      stocks[offerPos].buyers[b] = offers;
       (stocks[offerPos].countB)++;
     }
   }
@@ -153,6 +170,7 @@ void Market::newOffer(const Offer &offer)
       (stocks[offerPos].countS)++;
     }
   }
+  offerC++;
 } // newOffer()
 
 
@@ -160,10 +178,12 @@ bool Market::newTransaction(Transaction *transaction)
 {
   if(transCount > 0)
   {
-    cout << transCount << endl;
-    cout << transactions[0] << endl;
+    /*
+    for(int i = 0; i < transCount; i++)
+      cout << "Transaction #" << i+1 << ' ' << transactions[i];
+      */
     //transaction = &transactions[0];
-    return true;
+    return false;
   }
   return false; // means no more transactions, and transaction will be ignored
 } // newTransaction()
