@@ -27,6 +27,7 @@ public:
   int count;
   int transCount;
   int offerC;
+  int stockCount;
   Stock *stocks;
   Transaction *transactions;
 }; // class Market
