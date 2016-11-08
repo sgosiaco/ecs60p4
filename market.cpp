@@ -104,7 +104,7 @@ bool Market::newTransaction(Transaction *transaction)
 
     if(stocks[i].countB > 0 && stocks[i].countS > 0) //transaction possible
     {
-      if(stocks[i].buyers[0].price > stocks[i].sellers[0].price) //transaction can be made
+      if(stocks[i].buyers[0].price >= stocks[i].sellers[0].price) //transaction can be made
       {
         if(stocks[i].buyers[0].shares >= stocks[i].sellers[0].shares) //buyer wants >= shares
         {
