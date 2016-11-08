@@ -102,20 +102,56 @@ bool Market::newTransaction(Transaction *transaction)
 {
   for(int i = 0; i < stockCount; i++)
   {
-    /*
+
     if(stocks[i].countB > 0 && stocks[i].countS > 0) //transaction possible
     {
       if(stocks[i].buyers[0].price > stocks[i].sellers[0].price) //transaction can be made
       {
+        if(stocks[i].buyers[0].shares >= stocks[i].sellers[0].shares) //buyer wants >= shares
+        {
+          //iterate through buyers to find lowest "highest" price
+          int k;
+          for(k = 0; k < stocks[i].countB && stocks[i].buyers[k].price > stocks[i].sellers[0].price; i++);
 
+          //make transaction with price found above and sellers share amt and symbol.
+          transaction = new Transaction(offerC, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+
+          if(stocks[i].buyers[0].shares == stocks[i].sellers[0].shares)
+          {
+            //move the buyers up by one if shares are equal
+            for(int j = 0; j < stocks[i].countB; j++)
+              stocks[i].buyers[j] = stocks[i].buyers[j + 1];
+            (stocks[i].countB)--;
+          }
+          else
+          {
+            //subtract share amount
+            stocks[i].buyers[0].shares -= stocks[i].sellers[0].shares;
+          }
+
+          //move everything in the sellers array up one after the transaction is made
+          for(int j = 0; j < stocks[i].countS; j++)
+            stocks[i].sellers[j] = stocks[i].sellers[j + 1];
+          (stocks[i].countS)--;
+
+
+        }
+        else
+        {
+          //move everything in the sellers array up one after the transaction is made
+        }
       }
     }
-    */
-   for(int k = 0; k < stocks[i].countB; k++)
-    cout << 'B' << stocks[i].buyers[k].price << endl;
-    for(int k = 0; k < stocks[i].countS; k++)
-     cout << 'S' << stocks[i].sellers[k].price << endl;
-  cout << endl;
+
+    if(false)
+    {
+      for(int k = 0; k < stocks[i].countB; k++)
+        cout << 'B' << stocks[i].buyers[k].price << endl;
+      for(int k = 0; k < stocks[i].countS; k++)
+        cout << 'S' << stocks[i].sellers[k].price << endl;
+      cout << endl;
+    }
+
   }
 
   return false; // means no more transactions, and transaction will be ignored
