@@ -60,12 +60,14 @@ void Market::newOffer(const Offer &offer)
     int b;
     //find place to insert the buy offer
     for(b = 0; b < stocks[offerPos].countB && offer.price <= stocks[offerPos].buyers[b].price; b++);
+    /*
     if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
     {
       int i;
       for(i = b; i < stocks[offerPos].countB && offer.time > stocks[offerPos].buyers[i].time; i++);
         b = i;
     }
+    */
     //move everything up to make space
     for(int k = stocks[offerPos].countB - 1; k >= b; k--)
       stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
@@ -80,13 +82,15 @@ void Market::newOffer(const Offer &offer)
     //if we make it >= it would get rid of checking if the price was equal
     //since it would be sorting by time already since the older one is already
     //in the thing; the newer one would go after it.
-    for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
+    for(s = 0; s < stocks[offerPos].countS && offer.price >= stocks[offerPos].sellers[s].price; s++);
+    /*
     if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
     {
       int i;
       for(i = s; i < stocks[offerPos].countB && offer.time > stocks[offerPos].sellers[i].time; i++);
         s = i;
     }
+    */
     //move everything up to make space
     for(int k = stocks[offerPos].countS - 1; k >= s; k--)
       stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
@@ -108,41 +112,74 @@ bool Market::newTransaction(Transaction *transaction)
       {
         if(stocks[i].buyers[0].shares >= stocks[i].sellers[0].shares) //buyer wants >= shares
         {
-          //iterate through buyers to find lowest "highest" price
+          //iterate through sellers to find closest price
           int k;
-          for(k = 0; k < stocks[i].countB && stocks[i].buyers[k].price > stocks[i].sellers[0].price; k++)
+          for(k = 0; k < stocks[i].countS && stocks[i].buyers[0].price > stocks[i].sellers[k].price; k++)
           {
-            //cout << stocks[i].buyers[k].price << ' ' << stocks[i].sellers[0].price << endl;
+            cout << stocks[i].sellers[k].price << ' ' << stocks[i].buyers[0].price << endl;
           }
-          //if lowest "highest" price is the same
-          if(stocks[i].buyers[0].price == stocks[i].buyers[k - 1].price)
+          //stocks[i].sellers[k -1] should be closest
+          cout << stocks[i].sellers[k -1].price << endl;
+          if(stocks[i].countB > 1)
           {
-            //use seller price
-            //make transaction with seller price and sellers share amt and symbol.
-            ////transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
-            transaction->time = offerC - 1;
-            transaction->buyerID = stocks[i].buyers[0].ID;
-            transaction->sellerID = stocks[i].sellers[0].ID;
-            transaction->price = stocks[i].sellers[0].price;
-            transaction->shares = stocks[i].sellers[0].shares;
-            strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
-            //cout << *transaction;
-          }
-          else
-          {
-            if(stocks[i].buyers[k-1].price >= stocks[i].sellers[0].price)
+            if(stocks[i].buyers[1].price > stocks[i].sellers[k - 1].price)
             {
+              cout << stocks[i].buyers[0].price << " TEMP" << k << endl;
+              //use buyers[1].price
               //make transaction with price found above and sellers share amt and symbol.
               //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
               transaction->time = offerC - 1;
               transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].sellers[k - 1].price;
+              transaction->shares = stocks[i].sellers[k - 1].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
+              //cout << *transaction;
+            }
+            else
+            {
+              //use seller price
+              //make transaction with seller price and sellers share amt and symbol.
+              ////transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
               transaction->sellerID = stocks[i].sellers[0].ID;
-              transaction->price = stocks[i].buyers[k - 1].price;
+              transaction->price = stocks[i].sellers[0].price;
               transaction->shares = stocks[i].sellers[0].shares;
               strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
               //cout << *transaction;
             }
           }
+          else
+          {
+            if(stocks[i].buyers[0].price > stocks[i].sellers[k - 1].price)
+            {
+              //use buyers[1].price
+              //make transaction with price found above and sellers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].buyers[0].price;
+              transaction->shares = stocks[i].sellers[k - 1].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
+              //cout << *transaction;
+            }
+            else
+            {
+              //use seller price
+              //make transaction with seller price and sellers share amt and symbol.
+              ////transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[0].ID;
+              transaction->price = stocks[i].sellers[0].price;
+              transaction->shares = stocks[i].sellers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
+              //cout << *transaction;
+            }
+          }
+
 
           //adjust buyer and seller objects
           if(stocks[i].buyers[0].shares == stocks[i].sellers[0].shares)
@@ -166,44 +203,76 @@ bool Market::newTransaction(Transaction *transaction)
         }
         else //buyer wants < shares
         {
-          //move everything in the sellers array up one after the transaction is made
-          //
-          //iterate through buyers to find lowest "highest" price
+          //iterate through sellers to find closest price
           int k;
-          for(k = 0; k < stocks[i].countB && stocks[i].buyers[k].price > stocks[i].sellers[0].price; k++)
+          for(k = 0; k < stocks[i].countS && stocks[i].buyers[0].price > stocks[i].sellers[k].price; k++)
           {
-            //cout << stocks[i].buyers[k].price << ' ' << stocks[i].sellers[0].price << endl;
+            cout << stocks[i].sellers[k].price << ' ' << stocks[i].buyers[0].price << endl;
           }
-          if(stocks[i].buyers[0].price == stocks[i].buyers[k - 1].price)
+          //stocks[i].sellers[k -1] should be closest
+
+          if(stocks[i].countB > 1)
           {
-            //use seller price
-            //make transaction with seller price and buyers share amt and symbol.
-            //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
-            transaction->time = offerC - 1;
-            transaction->buyerID = stocks[i].buyers[0].ID;
-            transaction->sellerID = stocks[i].sellers[0].ID;
-            transaction->price = stocks[i].sellers[0].price;
-            transaction->shares = stocks[i].buyers[0].shares;
-            strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
-            //cout << *transaction;
+            if(stocks[i].buyers[1].price > stocks[i].sellers[k - 1].price)
+            {
+              //use buyers[1].price
+              //make transaction with price found above and sellers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[1].ID;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].buyers[1].price;
+              transaction->shares = stocks[i].buyers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
+              //cout << *transaction;
+            }
+            else
+            {
+              //use seller price
+              //make transaction with seller price and buyers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].sellers[k - 1].price;
+              transaction->shares = stocks[i].buyers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
+              //cout << *transaction;
+            }
           }
           else
           {
-            if(stocks[i].buyers[k-1].price >= stocks[i].sellers[0].price)
+            if(stocks[i].buyers[0].price > stocks[i].sellers[k - 1].price)
             {
-              //make transaction with price found above and buyers share amt and symbol.
-              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
+              //use buyers[1].price
+              //make transaction with price found above and sellers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
               transaction->time = offerC - 1;
               transaction->buyerID = stocks[i].buyers[0].ID;
-              transaction->sellerID = stocks[i].sellers[0].ID;
-              transaction->price = stocks[i].buyers[k - 1].price;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].buyers[0].price;
               transaction->shares = stocks[i].buyers[0].shares;
-              strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
+              //cout << *transaction;
+            }
+            else
+            {
+              //use seller price
+              //make transaction with seller price and buyers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].sellers[0].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[k - 1].ID;
+              transaction->price = stocks[i].sellers[k - 1].price;
+              transaction->shares = stocks[i].buyers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[k - 1].symbol);
               //cout << *transaction;
             }
           }
 
-          stocks[i].sellers[0].shares -= stocks[i].buyers[0].shares;
+
+
+          stocks[i].sellers[k - 1].shares -= stocks[i].buyers[0].shares;
 
           //move the buyers up by one if shares are equal
           for(int j = 0; j < stocks[i].countB; j++)

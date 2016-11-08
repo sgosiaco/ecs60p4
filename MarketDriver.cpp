@@ -90,7 +90,11 @@ void checkTransaction(const Transaction *transactions,
 {
   if(transactions[transactionCount].time
     != solutionTransactions[transactionCount].time)
+    {
       cout << "Time error at transaction #" << transactionCount << endl;
+      cout << transactions[transactionCount] << solutionTransactions[transactionCount];
+    }
+
       //cout << "Time error at transaction #" << transactionCount << endl;
 
   if(transactions[transactionCount].buyerID
@@ -106,7 +110,11 @@ void checkTransaction(const Transaction *transactions,
    || transactions[transactionCount].price >
     solutionTransactions[transactionCount].price + 0.01
    )
-      cout << "price error at transaction #" << transactionCount << endl;
+   {
+       cout << "price error at transaction #" << transactionCount << endl;
+           cout << transactions[transactionCount] << solutionTransactions[transactionCount];
+   }
+
 
  if(transactions[transactionCount].shares
    != solutionTransactions[transactionCount].shares)
