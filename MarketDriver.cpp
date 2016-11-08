@@ -88,15 +88,16 @@ Offer* readFiles(char *filename, int *numStocks, int *offerCount,
 void checkTransaction(const Transaction *transactions,
   const Transaction *solutionTransactions, int transactionCount)
 {
-  if(transactions[transactionCount].time 
+  if(transactions[transactionCount].time
     != solutionTransactions[transactionCount].time)
       cout << "Time error at transaction #" << transactionCount << endl;
+      //cout << "Time error at transaction #" << transactionCount << endl;
 
-  if(transactions[transactionCount].buyerID 
+  if(transactions[transactionCount].buyerID
     != solutionTransactions[transactionCount].buyerID)
       cout << "buyerID error at transaction #" << transactionCount << endl;
 
-  if(transactions[transactionCount].sellerID 
+  if(transactions[transactionCount].sellerID
     != solutionTransactions[transactionCount].sellerID)
       cout << "sellerID error at transaction #" << transactionCount << endl;
 
@@ -107,16 +108,16 @@ void checkTransaction(const Transaction *transactions,
    )
       cout << "price error at transaction #" << transactionCount << endl;
 
- if(transactions[transactionCount].shares 
+ if(transactions[transactionCount].shares
    != solutionTransactions[transactionCount].shares)
       cout << "shares error at transaction #" << transactionCount << endl;
 
- if(strcmp(transactions[transactionCount].symbol, 
+ if(strcmp(transactions[transactionCount].symbol,
    solutionTransactions[transactionCount].symbol))
       cout << "symbol error at transaction #" << transactionCount << endl;
 } // checkTransaction()
 
-void writeSolutions(char *filename, Transaction *transactions, 
+void writeSolutions(char *filename, Transaction *transactions,
   int transactionCount)
 {
   char solutionFilename[80];
@@ -124,10 +125,10 @@ void writeSolutions(char *filename, Transaction *transactions,
   strcat(solutionFilename, ".sol");
   ofstream outf(solutionFilename);
   outf << transactionCount << endl;
-  
+
   for(int i = 0; i < transactionCount; i++)
     outf << transactions[i];
-  
+
   outf.close();
 }  // writeSolutions()
 
@@ -147,19 +148,19 @@ int main(int argc, char* argv[])
   for(int i = 0; i < offerCount; i++)
   {
     market->newOffer(offers[i]);
-   
-    while(market->newTransaction(&transactions[transactionCount]) 
+
+    while(market->newTransaction(&transactions[transactionCount])
       && transactionCount < 1000000)
        transactionCount++;
   }  // for each offer
-  
+
   time = ct.cur_CPUTime();
-  
+
   if(solutionCount > 0)  // used by students with .sol file already existing.
   {
     for(i = 0; i < transactionCount  && i < solutionCount; i++)
       checkTransaction(transactions, solutionTransactions, i);
-    
+
     if(transactionCount < solutionCount)
       cout << "Too few transactions.\n";
     else
@@ -168,9 +169,8 @@ int main(int argc, char* argv[])
   } // for each offer;
   else  // write a solution file.
     writeSolutions(argv[1], transactions, transactionCount);
-      
+
   cout << "CPU: " << time << endl;
   delete market;
   return 0;
 } // main()
-
