@@ -1,6 +1,5 @@
 // Author: Sean Davis
 #include <iostream>
-#include <fstream>
 #include <cstring>
 #include "market.h"
 #include "MarketDriver.h"
