@@ -114,6 +114,7 @@ bool Market::newTransaction(Transaction *transaction)
           {
             //cout << stocks[i].buyers[k].price << ' ' << stocks[i].sellers[0].price << endl;
           }
+          //if lowest "highest" price is the same
           if(stocks[i].buyers[0].price == stocks[i].buyers[k - 1].price)
           {
             //use seller price
@@ -129,15 +130,18 @@ bool Market::newTransaction(Transaction *transaction)
           }
           else
           {
-            //make transaction with price found above and sellers share amt and symbol.
-            //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
-            transaction->time = offerC - 1;
-            transaction->buyerID = stocks[i].buyers[0].ID;
-            transaction->sellerID = stocks[i].sellers[0].ID;
-            transaction->price = stocks[i].buyers[k - 1].price;
-            transaction->shares = stocks[i].sellers[0].shares;
-            strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
-            //cout << *transaction;
+            if(stocks[i].buyers[k-1].price >= stocks[i].sellers[0].price)
+            {
+              //make transaction with price found above and sellers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].sellers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[0].ID;
+              transaction->price = stocks[i].buyers[k - 1].price;
+              transaction->shares = stocks[i].sellers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
+              //cout << *transaction;
+            }
           }
 
           //adjust buyer and seller objects
@@ -185,15 +189,18 @@ bool Market::newTransaction(Transaction *transaction)
           }
           else
           {
-            //make transaction with price found above and buyers share amt and symbol.
-            //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
-            transaction->time = offerC - 1;
-            transaction->buyerID = stocks[i].buyers[0].ID;
-            transaction->sellerID = stocks[i].sellers[0].ID;
-            transaction->price = stocks[i].buyers[k - 1].price;
-            transaction->shares = stocks[i].buyers[0].shares;
-            strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
-            //cout << *transaction;
+            if(stocks[i].buyers[k-1].price >= stocks[i].sellers[0].price)
+            {
+              //make transaction with price found above and buyers share amt and symbol.
+              //transaction = new Transaction(offerC - 1, stocks[i].buyers[0].ID, stocks[i].sellers[0].ID, stocks[i].buyers[k - 1].price, stocks[i].buyers[0].shares, stocks[i].sellers[0].symbol);
+              transaction->time = offerC - 1;
+              transaction->buyerID = stocks[i].buyers[0].ID;
+              transaction->sellerID = stocks[i].sellers[0].ID;
+              transaction->price = stocks[i].buyers[k - 1].price;
+              transaction->shares = stocks[i].buyers[0].shares;
+              strcpy(transaction->symbol, stocks[i].sellers[0].symbol);
+              //cout << *transaction;
+            }
           }
 
           stocks[i].sellers[0].shares -= stocks[i].buyers[0].shares;
