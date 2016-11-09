@@ -62,14 +62,14 @@ void Market::newOffer(const Offer &offer)
     int b;
     //find place to insert the buy offer
     for(b = 0; b < stocks[offerPos].countB && offer.price < stocks[offerPos].buyers[b].price; b++);
-
+    
     if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
     {
       int i;
-      for(i = b; i < stocks[offerPos].countB && offer.time > stocks[offerPos].buyers[i].time; i++);
+      for(i = b; i < stocks[offerPos].countB && offer.price == stocks[offerPos].buyers[i].price && offer.time > stocks[offerPos].buyers[i].time; i++);
       b = i;
     }
-
+    
     //move everything up to make space
     for(int k = stocks[offerPos].countB - 1; k >= b; k--)
       stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
@@ -85,14 +85,14 @@ void Market::newOffer(const Offer &offer)
     //since it would be sorting by time already since the older one is already
     //in the thing; the newer one would go after it.
     for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
-
+    
     if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
     {
       int i;
-      for(i = s; i < stocks[offerPos].countB && offer.time > stocks[offerPos].sellers[i].time; i++);
+      for(i = s; i < stocks[offerPos].countB && offer.price == stocks[offerPos].sellers[i].price && offer.time > stocks[offerPos].sellers[i].time; i++);
       s = i;
     }
-
+    
     //move everything up to make space
     for(int k = stocks[offerPos].countS - 1; k >= s; k--)
       stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
