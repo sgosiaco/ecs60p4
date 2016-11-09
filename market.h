@@ -31,7 +31,6 @@ public:
   int stockCount;
   int lastInserted;
   Stock *stocks;
-  Transaction *transactions;
 }; // class Market
 
 #endif
