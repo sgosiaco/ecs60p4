@@ -36,6 +36,7 @@ Market::Market(int numStocks, int offerCount, int IDs)
   offerC = 0;
   stockCount = 0;
   lastInserted = 0;
+  divisor = offerCount/numStocks;
   stocks = new Stock[numStocks];
 } // Market()
 
@@ -49,7 +50,7 @@ void Market::newOffer(const Offer &offer)
   }
   if(strcmp(stocks[offerPos].symbol,"-------") == 0)
   {
-    stocks[count++].set(1000000, offer.symbol);
+    stocks[count++].set(divisor, offer.symbol);
     //cout << '>' << offer.symbol << " has been added!" <<  endl;
     stockCount++;
   }

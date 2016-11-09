@@ -30,6 +30,7 @@ public:
   int offerC;
   int stockCount;
   int lastInserted;
+  int divisor;
   Stock *stocks;
 }; // class Market
 
