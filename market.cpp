@@ -111,7 +111,7 @@ bool Market::newTransaction(Transaction *transaction)
     {
       //find seller closest to buyer
       int closestSeller;
-      for(closestSeller = 0; closestSeller < stocks[lastInserted].countS && stocks[lastInserted].buyers[0].price > stocks[lastInserted].sellers[closestSeller].price; closestSeller++)
+      for(closestSeller = 0; closestSeller < stocks[lastInserted].countS && stocks[lastInserted].buyers[0].price >= stocks[lastInserted].sellers[closestSeller].price; closestSeller++)
       {
         //cout << stocks[i].sellers[k].price << ' ' << stocks[i].buyers[0].price << endl;
       }
