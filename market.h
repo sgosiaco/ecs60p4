@@ -23,11 +23,13 @@ public:
   Market(int numStocks, int offerCount, int IDs);
   void newOffer(const Offer &offer);
   bool newTransaction(Transaction *transaction);
+  void transaction(int t, int buyer, int seller, double pr, int shar, const char *sym, Transaction *transaction);
   void print();
   int count;
   int transCount;
   int offerC;
   int stockCount;
+  int lastInserted;
   Stock *stocks;
   Transaction *transactions;
 }; // class Market
