@@ -67,7 +67,7 @@ void Market::newOffer(const Offer &offer)
     {
       int i;
       for(i = b; i < stocks[offerPos].countB && offer.time > stocks[offerPos].buyers[i].time; i++);
-        b = i;
+      b = i;
     }
 
     //move everything up to make space
@@ -90,7 +90,7 @@ void Market::newOffer(const Offer &offer)
     {
       int i;
       for(i = s; i < stocks[offerPos].countB && offer.time > stocks[offerPos].sellers[i].time; i++);
-        s = i;
+      s = i;
     }
 
     //move everything up to make space
@@ -133,8 +133,8 @@ bool Market::newTransaction(Transaction *transaction)
               stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
             (stocks[lastInserted].countB)--;
           }
-          //remove sellers[0]
-          for(int i = 0; i < stocks[lastInserted].countS; i++)
+          //remove sellers[closestSeller - 1]
+          for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
             stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
           (stocks[lastInserted].countS)--;
           return true;
@@ -170,8 +170,8 @@ bool Market::newTransaction(Transaction *transaction)
                 stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
               (stocks[lastInserted].countB)--;
             }
-            //remove sellers[0]
-            for(int i = 0; i < stocks[lastInserted].countS; i++)
+            //remove sellers[closestSeller - 1]
+            for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
               stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
             (stocks[lastInserted].countS)--;
             return true;
@@ -203,8 +203,8 @@ bool Market::newTransaction(Transaction *transaction)
                 stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
               (stocks[lastInserted].countB)--;
             }
-            //remove sellers[0]
-            for(int i = 0; i < stocks[lastInserted].countS; i++)
+            //remove sellers[closestSeller - 1]
+            for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
               stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
             (stocks[lastInserted].countS)--;
             return true;
