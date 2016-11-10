@@ -62,14 +62,14 @@ void Market::newOffer(const Offer &offer)
     int b;
     //find place to insert the buy offer
     for(b = 0; b < stocks[offerPos].countB && offer.price < stocks[offerPos].buyers[b].price; b++);
-    
+
     if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
     {
       int i;
       for(i = b; i < stocks[offerPos].countB && offer.price == stocks[offerPos].buyers[i].price && offer.time > stocks[offerPos].buyers[i].time; i++);
       b = i;
     }
-    
+
     //move everything up to make space
     for(int k = stocks[offerPos].countB - 1; k >= b; k--)
       stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
@@ -85,14 +85,14 @@ void Market::newOffer(const Offer &offer)
     //since it would be sorting by time already since the older one is already
     //in the thing; the newer one would go after it.
     for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
-    
+
     if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
     {
       int i;
       for(i = s; i < stocks[offerPos].countB && offer.price == stocks[offerPos].sellers[i].price && offer.time > stocks[offerPos].sellers[i].time; i++);
       s = i;
     }
-    
+
     //move everything up to make space
     for(int k = stocks[offerPos].countS - 1; k >= s; k--)
       stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
@@ -123,7 +123,10 @@ bool Market::newTransaction(Transaction *transaction)
         if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
         {
           //no 2nd buyer. Use seller price
-          this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+          if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+            this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+          else
+            this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
           stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
           if(stocks[lastInserted].buyers[0].shares == 0)
@@ -142,7 +145,10 @@ bool Market::newTransaction(Transaction *transaction)
         else //if buyer has less shares than seller
         {
           //no 2nd buyer. Use seller price
-          this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+          if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+            this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+          else
+            this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
           stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
 
@@ -160,7 +166,10 @@ bool Market::newTransaction(Transaction *transaction)
           //use 2nd buyer price
           if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
           {
-            this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            else
+              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
             stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
             if(stocks[lastInserted].buyers[0].shares == 0)
@@ -178,7 +187,10 @@ bool Market::newTransaction(Transaction *transaction)
           }
           else //if buyer has less shares than seller
           {
-            this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            else
+              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
             stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
 
@@ -193,7 +205,10 @@ bool Market::newTransaction(Transaction *transaction)
         {
           if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
           {
-            this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            else
+              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
             stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
             if(stocks[lastInserted].buyers[0].shares == 0)
@@ -211,7 +226,10 @@ bool Market::newTransaction(Transaction *transaction)
           }
           else //if buyer has less shares than seller
           {
-            this->transaction(offerC - 1, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
+              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
+            else
+              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
 
             stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
 
