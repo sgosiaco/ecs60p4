@@ -125,26 +125,36 @@ void Market::newOffer(const Offer &offer)
     stocks[offerPos].lastSeller = i;
     stocks[offerPos].lastOffer = 'S';
   }
-  stocks[offerPos].recentOffer = offer;
+  recentOffer = offer;
   offerC++;
 } // newOffer()
 
 
 bool Market::newTransaction(Transaction *transaction)
 {
+  //strcmp(stocks[lastInserted].symbol, recentOffer.symbol) != 0
+  if(true)
+  {
+    int i;
+    for(i = 0; i < stockCount && (strcmp(stocks[i].symbol, recentOffer.symbol) != 0); i++);
+    lastInserted = i;
+  }
   if(stocks[lastInserted].countB > 0 && stocks[lastInserted].countS > 0) //transaction possible
   {
     if(stocks[lastInserted].lastOffer == 'B')
     {
-      int bIndex = stocks[lastInserted].findBidder(stocks[lastInserted].recentOffer);
+      int bIndex = stocks[lastInserted].findBidder(recentOffer);
       if(bIndex != -1 && stocks[lastInserted].bidderTransaction(bIndex, *transaction))
         return true;
     }
     else
     {
-      int sIndex = stocks[lastInserted].findSeller(stocks[lastInserted].recentOffer);
-      if(sIndex != -1 && stocks[lastInserted].sellerTransaction(sIndex, *transaction))
-        return true;
+      if(stocks[lastInserted].lastOffer == 'S')
+      {
+        int sIndex = stocks[lastInserted].findSeller(recentOffer);
+        if(sIndex != -1 && stocks[lastInserted].sellerTransaction(sIndex, *transaction))
+          return true;
+      }
     }
   }
   return false; // means no more transactions, and transaction will be ignored

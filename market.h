@@ -14,7 +14,7 @@ public:
   int lastSeller;
   int lastBuyer;
   char lastOffer;
-  Offer recentOffer;
+  //Offer recentOffer;
   char symbol[7];
   Stock();
   Stock(int size, const char *sym);
@@ -41,6 +41,7 @@ public:
   int stockCount;
   int lastInserted;
   int divisor;
+  Offer recentOffer;
   Stock *stocks;
 }; // class Market
 
