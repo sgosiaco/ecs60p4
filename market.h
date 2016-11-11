@@ -11,10 +11,17 @@ public:
   Offer *sellers;
   int countB;
   int countS;
+  int lastSeller;
+  int lastBuyer;
+  char lastOffer;
   char symbol[7];
   Stock();
   Stock(int size, const char *sym);
   void set(int size, const char *sym);
+  bool bidderTransaction(int bIndex, Transaction& t);
+  bool sellerTransaction(int sIndex, Transaction& t);
+  void shiftBidderArray(int bIndex);
+  void shiftSellerArray(int sIndex);
 };
 
 class Market
