@@ -59,10 +59,12 @@ void Market::newOffer(const Offer &offer)
 
   if(offer.type == 'B') //buyer
   {
-    int b;
+
+    int i;
+    /*
     //find place to insert the buy offer
     for(b = 0; b < stocks[offerPos].countB && offer.price < stocks[offerPos].buyers[b].price; b++);
-
+    cout << offer.price << ' ' << stocks[offerPos].buyers[b].price << endl;
     if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
     {
       int i;
@@ -75,15 +77,21 @@ void Market::newOffer(const Offer &offer)
       stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
     stocks[offerPos].buyers[b] = offer;
     (stocks[offerPos].countB)++;
+    */
+    for(i = stocks[offerPos].countB; i > 0 && stocks[offerPos].buyers[i - 1].price < offer.price; i--)
+      stocks[offerPos].buyers[i] = stocks[offerPos].buyers[i - 1];
+    stocks[offerPos].buyers[i] = offer;
+    (stocks[offerPos].countB)++;
   }
   else //seller
   {
-    int s;
+    int i;
     //find place to insert the buy offer
 
     //if we make it >= it would get rid of checking if the price was equal
     //since it would be sorting by time already since the older one is already
     //in the thing; the newer one would go after it.
+    /*
     for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
 
     if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
@@ -97,6 +105,12 @@ void Market::newOffer(const Offer &offer)
     for(int k = stocks[offerPos].countS - 1; k >= s; k--)
       stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
     stocks[offerPos].sellers[s] = offer;
+    (stocks[offerPos].countS)++;
+    */
+    for(i = stocks[offerPos].countS; i > 0 && stocks[offerPos].sellers[i - 1].price < offer.price; i--)
+        stocks[offerPos].sellers[i] = stocks[offerPos].sellers[i - 1];
+        
+    stocks[offerPos].sellers[i] = offer;
     (stocks[offerPos].countS)++;
   }
   offerC++;
