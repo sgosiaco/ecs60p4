@@ -147,7 +147,10 @@ int Stock::findSeller(Offer& offer)
     //if(sellers[i].time == offer.time)
       //return i;
   //return -1;
-  return lastSellerInserted;
+  if(sellers[lastSellerInserted].time == offer.time)
+    return lastSellerInserted;
+  else
+    return -1;
 } //find indiviual bidder in the bidder array
 
 
