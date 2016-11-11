@@ -14,6 +14,7 @@ public:
   int lastSeller;
   int lastBuyer;
   char lastOffer;
+  Offer recentOffer;
   char symbol[7];
   Stock();
   Stock(int size, const char *sym);
@@ -22,6 +23,8 @@ public:
   bool sellerTransaction(int sIndex, Transaction& t);
   void shiftBidderArray(int bIndex);
   void shiftSellerArray(int sIndex);
+  int findBidder(Offer& offer);
+  int findSeller(Offer& offer);
 };
 
 class Market

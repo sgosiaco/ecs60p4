@@ -86,8 +86,10 @@ void Market::newOffer(const Offer &offer)
     */
     for(i = stocks[offerPos].countB; i > 0 && stocks[offerPos].buyers[i - 1].price < offer.price; i--)
       stocks[offerPos].buyers[i] = stocks[offerPos].buyers[i - 1];
+
     stocks[offerPos].buyers[i] = offer;
     (stocks[offerPos].countB)++;
+
     stocks[offerPos].lastBuyer = i;
     stocks[offerPos].lastOffer = 'B';
   }
@@ -123,6 +125,7 @@ void Market::newOffer(const Offer &offer)
     stocks[offerPos].lastSeller = i;
     stocks[offerPos].lastOffer = 'S';
   }
+  stocks[offerPos].recentOffer = offer;
   offerC++;
 } // newOffer()
 
@@ -133,19 +136,36 @@ bool Market::newTransaction(Transaction *transaction)
   {
     if(stocks[lastInserted].lastOffer == 'B')
     {
-      int bIndex = stocks[lastInserted].lastBuyer;
+      int bIndex = stocks[lastInserted].findBidder(stocks[lastInserted].recentOffer);
       if(bIndex != -1 && stocks[lastInserted].bidderTransaction(bIndex, *transaction))
         return true;
     }
     else
     {
-      int sIndex = stocks[lastInserted].lastSeller;
+      int sIndex = stocks[lastInserted].findSeller(stocks[lastInserted].recentOffer);
       if(sIndex != -1 && stocks[lastInserted].sellerTransaction(sIndex, *transaction))
         return true;
     }
   }
   return false; // means no more transactions, and transaction will be ignored
 } // newTransaction()
+
+int Stock::findBidder(Offer& offer)
+{
+  for(int i = 0; i < countB; i++)
+    if(buyers[i].time == offer.time)
+      return i;
+  return -1;
+} //find indiviual bidder in the bidder array
+
+
+int Stock::findSeller(Offer& offer)
+{
+  for(int i = 0; i < countB; i++)
+    if(sellers[i].time == offer.time)
+      return i;
+  return -1;
+} //find indiviual bidder in the bidder array
 
 bool Stock::bidderTransaction(int bIndex, Transaction& t)
 {
