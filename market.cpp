@@ -50,10 +50,8 @@ void Market::newOffer(const Offer &offer)
 {
   //cout << offer.type << ' ' << offer.price << ' ' << offer.shares << ' ' << offer.symbol << endl;
   int offerPos;
-  for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++)
-  {
-    //cout << "FOR " << offer.symbol << ' ' << stocks[i].symbol << endl;
-  }
+  for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
+
   if(strcmp(stocks[offerPos].symbol,"-------") == 0)
   {
     stocks[count++].set(divisor, offer.symbol);
@@ -67,23 +65,7 @@ void Market::newOffer(const Offer &offer)
   {
 
     int i;
-    /*
-    //find place to insert the buy offer
-    for(b = 0; b < stocks[offerPos].countB && offer.price < stocks[offerPos].buyers[b].price; b++);
-    cout << offer.price << ' ' << stocks[offerPos].buyers[b].price << endl;
-    if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
-    {
-      int i;
-      for(i = b; i < stocks[offerPos].countB && offer.price == stocks[offerPos].buyers[i].price && offer.time > stocks[offerPos].buyers[i].time; i++);
-      b = i;
-    }
 
-    //move everything up to make space
-    for(int k = stocks[offerPos].countB - 1; k >= b; k--)
-      stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
-    stocks[offerPos].buyers[b] = offer;
-    (stocks[offerPos].countB)++;
-    */
     for(i = stocks[offerPos].countB; i > 0 && stocks[offerPos].buyers[i - 1].price < offer.price; i--)
       stocks[offerPos].buyers[i] = stocks[offerPos].buyers[i - 1];
 
@@ -96,32 +78,13 @@ void Market::newOffer(const Offer &offer)
   else //seller
   {
     int i;
-    //find place to insert the buy offer
 
-    //if we make it >= it would get rid of checking if the price was equal
-    //since it would be sorting by time already since the older one is already
-    //in the thing; the newer one would go after it.
-    /*
-    for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
-
-    if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
-    {
-      int i;
-      for(i = s; i < stocks[offerPos].countB && offer.price == stocks[offerPos].sellers[i].price && offer.time > stocks[offerPos].sellers[i].time; i++);
-      s = i;
-    }
-
-    //move everything up to make space
-    for(int k = stocks[offerPos].countS - 1; k >= s; k--)
-      stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
-    stocks[offerPos].sellers[s] = offer;
-    (stocks[offerPos].countS)++;
-    */
     for(i = stocks[offerPos].countS; i > 0 && stocks[offerPos].sellers[i - 1].price < offer.price; i--)
         stocks[offerPos].sellers[i] = stocks[offerPos].sellers[i - 1];
 
     stocks[offerPos].sellers[i] = offer;
     (stocks[offerPos].countS)++;
+
     stocks[offerPos].lastSeller = i;
     stocks[offerPos].lastOffer = 'S';
   }
@@ -132,8 +95,6 @@ void Market::newOffer(const Offer &offer)
 
 bool Market::newTransaction(Transaction *transaction)
 {
-  if(stocks[lastInserted].countB > 0 && stocks[lastInserted].countS > 0) //transaction possible
-  {
     if(stocks[lastInserted].lastOffer == 'B')
     {
       int bIndex = stocks[lastInserted].findBidder(recentOffer);
@@ -149,7 +110,6 @@ bool Market::newTransaction(Transaction *transaction)
           return true;
       }
     }
-  }
   return false; // means no more transactions, and transaction will be ignored
 } // newTransaction()
 
