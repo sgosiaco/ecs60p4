@@ -35,6 +35,7 @@ public:
   bool newTransaction(Transaction *transaction);
   void transaction(int t, int buyer, int seller, double pr, int shar, const char *sym, Transaction *transaction);
   void print();
+  void addOffer(const Offer& offer, int offerPos);
   int count;
   int transCount;
   int offerC;
