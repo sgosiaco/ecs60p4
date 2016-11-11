@@ -87,6 +87,12 @@ void Market::newOffer(const Offer &offer)
 
 void Market::addOffer(const Offer& offer, int offerPos)
 {
+  if(strcmp(stocks[offerPos].symbol,"-------") == 0)
+  {
+    stocks[count++].set(divisor, offer.symbol);
+    //cout << '>' << offer.symbol << " has been added!" <<  endl;
+    stockCount++;
+  }
   if(offer.type == 'B') //buyer
   {
 
