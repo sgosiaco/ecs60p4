@@ -132,13 +132,6 @@ void Market::newOffer(const Offer &offer)
 
 bool Market::newTransaction(Transaction *transaction)
 {
-  //strcmp(stocks[lastInserted].symbol, recentOffer.symbol) != 0
-  if(true)
-  {
-    int i;
-    for(i = 0; i < stockCount && (strcmp(stocks[i].symbol, recentOffer.symbol) != 0); i++);
-    lastInserted = i;
-  }
   if(stocks[lastInserted].countB > 0 && stocks[lastInserted].countS > 0) //transaction possible
   {
     if(stocks[lastInserted].lastOffer == 'B')
