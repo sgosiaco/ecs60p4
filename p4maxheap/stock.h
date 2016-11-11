@@ -14,10 +14,11 @@ private:
   char name[7];
   int currBidders;
   int currSellers;
+  int lastSellerInserted;
 
   MaxBinaryHeap bidders;
   Offer sellers[500];
- 
+
 public:
   Stock();
   ~Stock();

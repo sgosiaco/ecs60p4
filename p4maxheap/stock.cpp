@@ -4,7 +4,7 @@ using namespace std;
 
 
 
-Stock::Stock():currBidders(0), currSellers(0), bidders(400)
+Stock::Stock():currBidders(0), currSellers(0), lastSellerInserted(0), bidders(400)
 {
 } // Stock() default constructor
 
@@ -30,6 +30,7 @@ void Stock::addToStock(const Offer &offer)
       sellers[i] = sellers[i - 1];
     //cout << " HERE 3\n";
     sellers[i] = offer;
+    lastSellerInserted = i;
     currSellers++;
   } // if a incoming seller
 } // addToBidderAr()
@@ -48,7 +49,7 @@ bool Stock::bidderTransaction(Transaction& t)
   {
     if(sellers[i].price <= recentBidder.price)
     {
-      if(sellers[i].time > recentBidder.time) 
+      if(sellers[i].time > recentBidder.time)
         t.time = sellers[i].time;
       else
         t.time = recentBidder.time;
@@ -63,7 +64,7 @@ bool Stock::bidderTransaction(Transaction& t)
        // cout << "SELLERS = BUYERS, recentBidder.shares = " << recentBidder.shares << " and name is " << recentBidder.symbol << endl;
         t.shares = recentBidder.shares;
         shiftSellerArray(i);
-        bidders.deleteRecentOffer(); 
+        bidders.deleteRecentOffer();
         //cout << t;
         return true;
       } //update both arrays
@@ -84,7 +85,7 @@ bool Stock::bidderTransaction(Transaction& t)
         //cout << t;
         return true;
       } // upate the stock's seller list
-    } 
+    }
   }
   return false;
 } // bidderTransaction() goes through list of sellers for a stock
@@ -96,7 +97,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
   Offer &highest = bidders.findMax(), secondHighest = bidders.getSecondMax();
   if(highest.price < sellers[sIndex].price)
     return false;
- 
+
   if(highest.time > sellers[sIndex].time) // pick the larger time
     t.time = highest.time;
   else
@@ -110,7 +111,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
     t.price = secondHighest.price;
   else
     t.price = sellers[sIndex].price;
-  
+
   if(highest.shares == sellers[sIndex].shares)
   {
     t.shares = sellers[sIndex].shares;
@@ -133,7 +134,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
   {
     t.shares = highest.shares;
     sellers[sIndex].shares -= highest.shares;
-    bidders.deleteMax(); 
+    bidders.deleteMax();
     //cout << t;
   } // bidders ask for less than what seller offers
   return true;
@@ -142,10 +143,11 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
 
 int Stock::findSeller(Offer& offer)
 {
-  for(int i = 0; i < currSellers; i++)
-    if(sellers[i].time == offer.time)
-      return i;
-  return -1;
+  //for(int i = 0; i < currSellers; i++)
+    //if(sellers[i].time == offer.time)
+      //return i;
+  //return -1;
+  return lastSellerInserted;
 } //find indiviual bidder in the bidder array
 
 
