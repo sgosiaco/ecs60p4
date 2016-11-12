@@ -6,6 +6,7 @@ using namespace std;
 
 Stock::Stock(): currSellers(0), bidders(500)
 {
+  copied = 0;
 } // Stock() default constructor
 
 
@@ -17,8 +18,11 @@ Stock::~Stock()
 void Stock::addToStock(const Offer &offer)
 {
   int i;
-
-  strcpy(name, offer.symbol);
+  if(!copied)
+  {
+    strcpy(name, offer.symbol);
+    copied = 1;
+  }
 
   if(offer.type == 'B')
     bidders.insert(offer);  //insert into max heap

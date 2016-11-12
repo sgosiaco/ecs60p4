@@ -107,10 +107,38 @@
             return ITEM_NOT_FOUND;
         } // find() if not matching, return NULL
 
+        Stock* QuadraticHashTable::find(const Offer* x)
+        {
+
+            int currentPos = findPos(x);
+
+            if(isActive(currentPos))
+              return array[currentPos].element;
+
+            return ITEM_NOT_FOUND;
+        } // find() if not matching, return NULL
+
         /**
          * Make the hash table logically empty.
          */
        
+        int QuadraticHashTable::findPos( const Offer* x )
+        {
+/* 1*/      int collisionNum = 0;
+/* 2*/      int currentPos = hash( x, maxSize );
+
+            //cout << "currentPos = " << currentPos << endl;
+
+/* 3*/      while(array[currentPos].info != EMPTY &&
+              strcmp(array[currentPos].element->getName(), x->symbol)!= 0 )
+            {
+                //out << array[currentPos].element->getName() << endl;
+/* 4*/          currentPos += 2 * ++collisionNum - 1;  // Compute ith probe
+/* 5*/          if( currentPos >= maxSize )
+/* 6*/              currentPos -= maxSize;
+            }
+/* 7*/      return currentPos;
+        } // Return the position where the search for x terminates.
  
         int QuadraticHashTable::findPos( Stock* x ) 
         {
@@ -172,6 +200,23 @@
         {
             int hashVal = 0;
             char *n = stock->getName();
+//            cout << n << " is the name of the stock\n";
+
+            for( int i = 0; i < (int)strlen(n); i++ )
+                hashVal = 37 * hashVal + n[ i ];
+
+            hashVal %= tableSize;
+            //cout << hashVal << endl;
+            if( hashVal < 0 )
+                hashVal += tableSize;
+
+            return hashVal;
+        }
+
+        int QuadraticHashTable::hash(const Offer *stock, int tableSize) const
+        {
+            int hashVal = 0;
+            const char *n = stock->symbol;
 //            cout << n << " is the name of the stock\n";
 
             for( int i = 0; i < (int)strlen(n); i++ )

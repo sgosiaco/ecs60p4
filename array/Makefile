@@ -1,11 +1,11 @@
-marketAr.out : marketAr.o MarketDriver.o  
-	g++ -ansi -Wall -g -o marketAr.out marketAr.o MarketDriver.o  
+market.out : market.o MarketDriver.o  
+	g++ -ansi -Wall -g -o market.out market.o MarketDriver.o  
 
-marketAr.o : marketAr.cpp marketAr.h MarketDriver.h 
-	g++ -ansi -Wall -g -c marketAr.cpp
+market.o : market.cpp market.h MarketDriver.h 
+	g++ -ansi -Wall -g -c market.cpp
 
-MarketDriver.o : MarketDriver.cpp MarketDriver.h marketAr.h CPUTimer.h 
+MarketDriver.o : MarketDriver.cpp MarketDriver.h market.h CPUTimer.h 
 	g++ -ansi -Wall -g -c MarketDriver.cpp
 
 clean : 
-	rm -f marketAr.out marketAr.o  MarketDriver.o   
+	rm -f market.out market.o  MarketDriver.o   

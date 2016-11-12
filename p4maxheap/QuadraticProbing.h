@@ -29,6 +29,7 @@
             void insert(Stock *x);
             void remove(Stock *x); 
             Stock* find(Stock *x);
+            Stock* find(const Offer *x);
             const QuadraticHashTable & operator=(const QuadraticHashTable &rhs);
 
             bool operator!=(Stock *rhs);
@@ -54,7 +55,9 @@
             int nextPrime( int n ) const;
             bool isActive( int currentPos ) const;
             int findPos( Stock *x ) ;
+            int findPos( const Offer *x ) ;
             int hash( Stock *stock, int tableSize ) const;
+            int hash( const Offer *stock, int tableSize ) const;
             void rehash( );
         };
 

@@ -13,6 +13,7 @@ class Stock
 private:
   char name[7];
   int currSellers;
+  bool copied;
   MaxBinaryHeap bidders;
   Offer sellers[500];
  

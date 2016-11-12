@@ -21,10 +21,11 @@ Market::~Market()
 
 void Market::newOffer(const Offer &offer)
 {
-  Stock incomingStock; 
-  incomingStock.setName(offer.symbol);
+  //Stock incomingStock; 
+  //incomingStock.setName(offer.symbol);
   
-  Stock *ptr = tableStocks.find(&incomingStock);
+//  Stock *ptr = tableStocks.find(&incomingStock);
+  Stock *ptr = tableStocks.find(&offer);
 
   if(ptr)
     ptr->addToStock(offer);

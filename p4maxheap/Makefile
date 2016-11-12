@@ -1,4 +1,4 @@
-CFLAGS = -ansi -Wall -g 
+CFLAGS = -ansi -Wall
 market.out : market.o MarketDriver.o stock.o QuadraticProbing.o MaxBinaryHeap.o
 	g++ $(CFLAGS) -o market.out market.o MarketDriver.o stock.o QuadraticProbing.o MaxBinaryHeap.o
 
