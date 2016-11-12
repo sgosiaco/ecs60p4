@@ -48,7 +48,6 @@ Market::Market(int numStocks, int offerCount, int IDs)
 
 void Market::newOffer(const Offer &offer)
 {
-  int i;
   if(!offerC)
   {
     addOffer(offer, 0);
@@ -64,9 +63,16 @@ void Market::newOffer(const Offer &offer)
     }
     else
     {
-      for(i = 0; i < count && (strcmp(offer.symbol, stocks[i].symbol) != 0); i++);
-      addOffer(offer, i);
-      if(i == offerC)
+      int offerPos;
+      for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
+      if(strcmp(stocks[offerPos].symbol,"-------") == 0)
+      {
+        stocks[count++].set(divisor, offer.symbol);
+        //cout << '>' << offer.symbol << " has been added!" <<  endl;
+        stockCount++;
+      }
+      addOffer(offer, offerPos);
+      if(offerPos == offerC)
         offerC++;
     }
   } // currStock > 0
@@ -87,15 +93,8 @@ void Market::newOffer(const Offer &offer)
 
 void Market::addOffer(const Offer& offer, int offerPos)
 {
-  if(strcmp(stocks[offerPos].symbol,"-------") == 0)
-  {
-    stocks[count++].set(divisor, offer.symbol);
-    //cout << '>' << offer.symbol << " has been added!" <<  endl;
-    stockCount++;
-  }
   if(offer.type == 'B') //buyer
   {
-
     int i;
 
     for(i = stocks[offerPos].countB; i > 0 && stocks[offerPos].buyers[i - 1].price < offer.price; i--)
