@@ -67,9 +67,8 @@ void Market::newOffer(const Offer &offer)
       for(offerPos = 0; offerPos < stockCount && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
       if(strcmp(stocks[offerPos].symbol,"-------") == 0)
       {
-        stocks[count++].set(divisor, offer.symbol);
+        stocks[stockCount++].set(divisor, offer.symbol);
         //cout << '>' << offer.symbol << " has been added!" <<  endl;
-        stockCount++;
       }
       addOffer(offer, offerPos);
       if(offerPos == stockCount)
