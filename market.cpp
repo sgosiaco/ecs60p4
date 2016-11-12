@@ -8,6 +8,9 @@ Stock::Stock()
 {
   countB = 0;
   countS = 0;
+  lastSeller = 0;
+  lastBuyer = 0;
+  lastOffer = '-';
   strcpy(symbol, "-------");
 }
 
@@ -27,6 +30,9 @@ void Stock::set(int size, const char *sym)
   sellers = new Offer[size];
   countB = 0;
   countS = 0;
+  lastSeller = 0;
+  lastBuyer = 0;
+  lastOffer = '-';
 }
 
 Market::Market(int numStocks, int offerCount, int IDs)
@@ -42,12 +48,38 @@ Market::Market(int numStocks, int offerCount, int IDs)
 
 void Market::newOffer(const Offer &offer)
 {
+  if(!stockCount)
+  {
+    stocks[stockCount++].set(divisor, offer.symbol);
+    addOffer(offer, 0);
+  } // if currStock = 0
+  else
+  {
+    if(strcmp(offer.symbol, stocks[lastInserted].symbol) == 0)
+    {
+      addOffer(offer, lastInserted);
+      if(lastInserted == stockCount)
+        stockCount++;
+    }
+    else
+    {
+      int offerPos;
+      for(offerPos = 0; offerPos < stockCount && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
+      if(strcmp(stocks[offerPos].symbol,"-------") == 0)
+      {
+        stocks[stockCount++].set(divisor, offer.symbol);
+        //cout << '>' << offer.symbol << " has been added!" <<  endl;
+      }
+      addOffer(offer, offerPos);
+      if(offerPos == stockCount)
+        stockCount++;
+    }
+  } // currStock > 0
+  /*
   //cout << offer.type << ' ' << offer.price << ' ' << offer.shares << ' ' << offer.symbol << endl;
   int offerPos;
-  for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++)
-  {
-    //cout << "FOR " << offer.symbol << ' ' << stocks[i].symbol << endl;
-  }
+  for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
+
   if(strcmp(stocks[offerPos].symbol,"-------") == 0)
   {
     stocks[count++].set(divisor, offer.symbol);
@@ -55,197 +87,188 @@ void Market::newOffer(const Offer &offer)
     stockCount++;
   }
   lastInserted = offerPos;
+  */
+} // newOffer()
 
-
+void Market::addOffer(const Offer& offer, int offerPos)
+{
   if(offer.type == 'B') //buyer
   {
-    int b;
-    //find place to insert the buy offer
-    for(b = 0; b < stocks[offerPos].countB && offer.price < stocks[offerPos].buyers[b].price; b++);
+    int i;
 
-    if(offer.price == stocks[offerPos].buyers[b].price) //handle ties in price
-    {
-      int i;
-      for(i = b; i < stocks[offerPos].countB && offer.price == stocks[offerPos].buyers[i].price && offer.time > stocks[offerPos].buyers[i].time; i++);
-      b = i;
-    }
+    for(i = stocks[offerPos].countB; i > 0 && stocks[offerPos].buyers[i - 1].price < offer.price; i--)
+      stocks[offerPos].buyers[i] = stocks[offerPos].buyers[i - 1];
 
-    //move everything up to make space
-    for(int k = stocks[offerPos].countB - 1; k >= b; k--)
-      stocks[offerPos].buyers[k + 1] = stocks[offerPos].buyers[k];
-    stocks[offerPos].buyers[b] = offer;
+    stocks[offerPos].buyers[i] = offer;
     (stocks[offerPos].countB)++;
+
+    stocks[offerPos].lastBuyer = i;
+    stocks[offerPos].lastOffer = 'B';
   }
   else //seller
   {
-    int s;
-    //find place to insert the buy offer
+    int i;
 
-    //if we make it >= it would get rid of checking if the price was equal
-    //since it would be sorting by time already since the older one is already
-    //in the thing; the newer one would go after it.
-    for(s = 0; s < stocks[offerPos].countS && offer.price > stocks[offerPos].sellers[s].price; s++);
+    for(i = stocks[offerPos].countS; i > 0 && stocks[offerPos].sellers[i - 1].price < offer.price; i--)
+        stocks[offerPos].sellers[i] = stocks[offerPos].sellers[i - 1];
 
-    if(offer.price == stocks[offerPos].sellers[s].price) //handle ties in price
-    {
-      int i;
-      for(i = s; i < stocks[offerPos].countB && offer.price == stocks[offerPos].sellers[i].price && offer.time > stocks[offerPos].sellers[i].time; i++);
-      s = i;
-    }
-
-    //move everything up to make space
-    for(int k = stocks[offerPos].countS - 1; k >= s; k--)
-      stocks[offerPos].sellers[k + 1] = stocks[offerPos].sellers[k];
-    stocks[offerPos].sellers[s] = offer;
+    stocks[offerPos].sellers[i] = offer;
     (stocks[offerPos].countS)++;
-  }
-  offerC++;
-} // newOffer()
 
+    stocks[offerPos].lastSeller = i;
+    stocks[offerPos].lastOffer = 'S';
+  }
+  recentOffer = offer;
+  offerC++;
+}
 
 bool Market::newTransaction(Transaction *transaction)
 {
-  if(stocks[lastInserted].countB > 0 && stocks[lastInserted].countS > 0) //transaction possible
-  {
-    if(stocks[lastInserted].buyers[0].price >= stocks[lastInserted].sellers[0].price) //transaction can be made
+    if(stocks[lastInserted].lastOffer == 'B')
     {
-      //find seller closest to buyer
-      int closestSeller;
-      for(closestSeller = 0; closestSeller < stocks[lastInserted].countS && stocks[lastInserted].buyers[0].price >= stocks[lastInserted].sellers[closestSeller].price; closestSeller++)
+      int bIndex = stocks[lastInserted].findBidder(recentOffer);
+      if(bIndex != -1 && stocks[lastInserted].bidderTransaction(bIndex, *transaction))
+        return true;
+    }
+    else
+    {
+      if(stocks[lastInserted].lastOffer == 'S')
       {
-        //cout << stocks[i].sellers[k].price << ' ' << stocks[i].buyers[0].price << endl;
-      }
-      //stocks[i].sellers[closestSeller - 1] should be closest
-      //cout << stocks[lastInserted].buyers[0].price << ' ' << stocks[lastInserted].sellers[closestSeller - 1].price << endl;
-      //check for 2nd buyer
-      if(strcmp(stocks[lastInserted].buyers[1].symbol, stocks[lastInserted].buyers[0].symbol) != 0)
-      {
-        if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
-        {
-          //no 2nd buyer. Use seller price
-          if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-            this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-          else
-            this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-          stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
-          if(stocks[lastInserted].buyers[0].shares == 0)
-          {
-            //remove buyers[0]
-            for(int i = 0; i < stocks[lastInserted].countB; i++)
-              stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-            (stocks[lastInserted].countB)--;
-          }
-          //remove sellers[closestSeller - 1]
-          for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
-            stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
-          (stocks[lastInserted].countS)--;
+        int sIndex = stocks[lastInserted].findSeller(recentOffer);
+        if(sIndex != -1 && stocks[lastInserted].sellerTransaction(sIndex, *transaction))
           return true;
-        }
-        else //if buyer has less shares than seller
-        {
-          //no 2nd buyer. Use seller price
-          if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-            this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-          else
-            this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-          stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
-
-          //remove buyers[0]
-          for(int i = 0; i < stocks[lastInserted].countB; i++)
-            stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-          (stocks[lastInserted].countB)--;
-          return true;
-        }
-      }
-      else //2nd buyer exists
-      {
-        if(stocks[lastInserted].buyers[1].price >= stocks[lastInserted].sellers[closestSeller - 1].price)
-        {
-          //use 2nd buyer price
-          if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
-          {
-            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-            else
-              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-            stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
-            if(stocks[lastInserted].buyers[0].shares == 0)
-            {
-              //remove buyers[0]
-              for(int i = 0; i < stocks[lastInserted].countB; i++)
-                stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-              (stocks[lastInserted].countB)--;
-            }
-            //remove sellers[closestSeller - 1]
-            for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
-              stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
-            (stocks[lastInserted].countS)--;
-            return true;
-          }
-          else //if buyer has less shares than seller
-          {
-            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-            else
-              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].buyers[1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-            stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
-
-            //remove buyers[0]
-            for(int i = 0; i < stocks[lastInserted].countB; i++)
-              stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-            (stocks[lastInserted].countB)--;
-            return true;
-          }
-        }
-        else //use seller price
-        {
-          if(stocks[lastInserted].buyers[0].shares >= stocks[lastInserted].sellers[closestSeller - 1].shares)
-          {
-            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-            else
-              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].sellers[closestSeller - 1].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-            stocks[lastInserted].buyers[0].shares -= stocks[lastInserted].sellers[closestSeller - 1].shares; //remove shares
-            if(stocks[lastInserted].buyers[0].shares == 0)
-            {
-              //remove buyers[0]
-              for(int i = 0; i < stocks[lastInserted].countB; i++)
-                stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-              (stocks[lastInserted].countB)--;
-            }
-            //remove sellers[closestSeller - 1]
-            for(int i = closestSeller - 1; i < stocks[lastInserted].countS; i++)
-              stocks[lastInserted].sellers[i] = stocks[lastInserted].sellers[i + 1];
-            (stocks[lastInserted].countS)--;
-            return true;
-          }
-          else //if buyer has less shares than seller
-          {
-            if(stocks[lastInserted].buyers[0].time > stocks[lastInserted].sellers[closestSeller - 1].time)
-              this->transaction(stocks[lastInserted].buyers[0].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-            else
-              this->transaction(stocks[lastInserted].sellers[closestSeller - 1].time, stocks[lastInserted].buyers[0].ID, stocks[lastInserted].sellers[closestSeller - 1].ID, stocks[lastInserted].sellers[closestSeller - 1].price, stocks[lastInserted].buyers[0].shares, stocks[lastInserted].buyers[0].symbol, transaction);
-
-            stocks[lastInserted].sellers[closestSeller - 1].shares -= stocks[lastInserted].buyers[0].shares; //remove shares
-
-            //remove buyers[0]
-            for(int i = 0; i < stocks[lastInserted].countB; i++)
-              stocks[lastInserted].buyers[i] = stocks[lastInserted].buyers[i + 1];
-            (stocks[lastInserted].countB)--;
-            return true;
-          }
-        }
       }
     }
-
-  }
   return false; // means no more transactions, and transaction will be ignored
 } // newTransaction()
+
+int Stock::findBidder(Offer& offer)
+{
+  for(int i = 0; i < countB; i++)
+    if(buyers[i].time == offer.time)
+      return i;
+  return -1;
+} //find indiviual bidder in the bidder array
+
+
+int Stock::findSeller(Offer& offer)
+{
+  for(int i = 0; i < countB; i++)
+    if(sellers[i].time == offer.time)
+      return i;
+  return -1;
+} //find indiviual bidder in the bidder array
+
+bool Stock::bidderTransaction(int bIndex, Transaction& t)
+{
+  //pass in the index where the recent offer is
+  for(int i = 0; i < countS; i++)
+  {
+    if(sellers[i].price <= buyers[bIndex].price)
+    {
+      if(sellers[i].time > buyers[bIndex].time)
+        t.time = sellers[i].time;
+      else
+        t.time = buyers[bIndex].time;
+
+      t.buyerID = buyers[bIndex].ID;
+      t.sellerID = sellers[i].ID;
+      t.price = sellers[i].price;
+      strcpy(t.symbol, buyers[bIndex].symbol);
+
+      if(sellers[i].shares == buyers[bIndex].shares)
+      {
+        //cout << "SELLERS = BUYERS, buyers[bIndex].shares = " << buyers[bIndex].shares << " and name is " << buyers[bIndex].symbol << endl;
+        t.shares = buyers[bIndex].shares;
+        shiftSellerArray(i);
+        shiftBidderArray(bIndex);
+        return true;
+      } //update both arrays
+      if(sellers[i].shares > buyers[bIndex].shares)
+      {
+        t.shares = buyers[bIndex].shares;
+        sellers[i].shares -= buyers[bIndex].shares;
+        shiftBidderArray(bIndex);
+        return true;
+      } // upate the stock's bidder list
+      else
+      {
+        t.shares = sellers[i].shares;
+        buyers[bIndex].shares -= sellers[i].shares;
+        //cout << "shares left = " << buyers[bIndex].shares << endl;
+        shiftSellerArray(i);
+        return true;
+      } // upate the stock's seller list
+    }
+  }
+  return false;
+} // bidderTransaction() goes through list of sellers for a stock
+
+bool Stock::sellerTransaction(int sIndex, Transaction& t)
+{
+  for(int bIndex = 0; bIndex < countB; bIndex++)
+  {
+      if(buyers[bIndex].price >= sellers[sIndex].price)
+      {
+        if(buyers[bIndex].time > sellers[sIndex].time)
+          t.time = buyers[bIndex].time;
+        else
+          t.time = sellers[sIndex].time;
+
+        t.buyerID = buyers[bIndex].ID;
+        t.sellerID = sellers[sIndex].ID;
+        strcpy(t.symbol, sellers[sIndex].symbol);
+
+        if(bIndex < countB - 1 && buyers[bIndex + 1].price >= sellers[sIndex].price)
+        {
+          //sellers[sIndex].price = buyers[bIndex + 1].price;
+          t.price = buyers[bIndex + 1].price;
+        } // Felsman's Rule
+        else
+           t.price = sellers[sIndex].price;
+
+        if(buyers[bIndex].shares == sellers[sIndex].shares)
+        {
+          t.shares = sellers[sIndex].shares;
+          shiftSellerArray(sIndex);
+          shiftBidderArray(bIndex);
+          return true;
+        } //update both arrays
+        if(buyers[bIndex].shares > sellers[sIndex].shares)
+        {
+          t.shares = sellers[sIndex].shares;
+          buyers[bIndex].shares -= sellers[sIndex].shares;
+          shiftSellerArray(sIndex);
+          return true;
+        } // upate the stock's bidder list
+        else
+        {
+          t.shares = buyers[bIndex].shares;
+          sellers[sIndex].shares -= buyers[bIndex].shares;
+          shiftBidderArray(bIndex);
+          return true;
+        } // upate the stock's seller list
+      }
+  }
+  return false;
+} // sellerTransaction()
+
+inline void Stock::shiftBidderArray(int bIndex)
+{
+  for(int i = bIndex; i < countB - 1; i++)
+    buyers[i] = buyers[i + 1];
+
+  countB--;
+} //shiftBidderArray()
+
+
+inline void Stock::shiftSellerArray(int sIndex)
+{
+  for(int i = sIndex; i < countS - 1; i++)
+    sellers[i] = sellers[i + 1];
+
+  countS--;
+} //shiftSellerArray()
 
 void Market::transaction(int t, int buyer, int seller, double pr, int shar, const char *sym, Transaction *transaction)
 {

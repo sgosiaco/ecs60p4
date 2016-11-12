@@ -11,10 +11,20 @@ public:
   Offer *sellers;
   int countB;
   int countS;
+  int lastSeller;
+  int lastBuyer;
+  char lastOffer;
+  //Offer recentOffer;
   char symbol[7];
   Stock();
   Stock(int size, const char *sym);
   void set(int size, const char *sym);
+  bool bidderTransaction(int bIndex, Transaction& t);
+  bool sellerTransaction(int sIndex, Transaction& t);
+  void shiftBidderArray(int bIndex);
+  void shiftSellerArray(int sIndex);
+  int findBidder(Offer& offer);
+  int findSeller(Offer& offer);
 };
 
 class Market
@@ -25,12 +35,14 @@ public:
   bool newTransaction(Transaction *transaction);
   void transaction(int t, int buyer, int seller, double pr, int shar, const char *sym, Transaction *transaction);
   void print();
+  void addOffer(const Offer& offer, int offerPos);
   int count;
   int transCount;
   int offerC;
   int stockCount;
   int lastInserted;
   int divisor;
+  Offer recentOffer;
   Stock *stocks;
 }; // class Market
 
