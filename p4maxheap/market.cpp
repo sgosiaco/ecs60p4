@@ -43,9 +43,9 @@ void Market::newOffer(const Offer &offer)
 
 bool Market::newTransaction(Transaction *transaction)
 {
-  Stock *stockPtr, temp;
-  temp.setName(recentOffer.symbol);
-  stockPtr = tableStocks.find(&temp);
+  Stock *stockPtr;
+//  temp.setName(recentOffer.symbol);
+  stockPtr = tableStocks.find(&recentOffer);
 
   //cout << recentOffer.symbol << " " << recentOffer.price << " " << recentOffer.type << endl;
   if(recentOffer.type == 'B')
