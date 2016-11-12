@@ -64,7 +64,7 @@ void Market::newOffer(const Offer &offer)
     else
     {
       int offerPos;
-      for(offerPos = 0; offerPos < count && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
+      for(offerPos = 0; offerPos < stockCount && (strcmp(offer.symbol, stocks[offerPos].symbol) != 0); offerPos++);
       if(strcmp(stocks[offerPos].symbol,"-------") == 0)
       {
         stocks[count++].set(divisor, offer.symbol);
