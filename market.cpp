@@ -48,18 +48,18 @@ Market::Market(int numStocks, int offerCount, int IDs)
 
 void Market::newOffer(const Offer &offer)
 {
-  if(!offerC)
+  if(!stockCount)
   {
+    stocks[stockCount++].set(divisor, offer.symbol);
     addOffer(offer, 0);
-    offerC++;
   } // if currStock = 0
   else
   {
     if(strcmp(offer.symbol, stocks[lastInserted].symbol) == 0)
     {
       addOffer(offer, lastInserted);
-      if(lastInserted == offerC)
-        offerC++;
+      if(lastInserted == stockCount)
+        stockCount++;
     }
     else
     {
@@ -72,8 +72,8 @@ void Market::newOffer(const Offer &offer)
         stockCount++;
       }
       addOffer(offer, offerPos);
-      if(offerPos == offerC)
-        offerC++;
+      if(offerPos == stockCount)
+        stockCount++;
     }
   } // currStock > 0
   /*
