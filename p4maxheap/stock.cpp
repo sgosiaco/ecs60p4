@@ -4,7 +4,7 @@ using namespace std;
 
 
 
-Stock::Stock():currBidders(0), currSellers(0), lastSellerInserted(0), bidders(400)
+Stock::Stock(): currSellers(0), bidders(500)
 {
 } // Stock() default constructor
 
@@ -17,28 +17,25 @@ Stock::~Stock()
 void Stock::addToStock(const Offer &offer)
 {
   int i;
-//  cout << "Here " << offer.price << " " << offer.symbol << endl;
+
   strcpy(name, offer.symbol);
+
   if(offer.type == 'B')
-  {
     bidders.insert(offer);  //insert into max heap
-    currBidders++;
-  } // if a incoming bidder
+
   else
   {
     for(i = currSellers; i > 0 && sellers[i - 1].price < offer.price; i--)
       sellers[i] = sellers[i - 1];
-    //cout << " HERE 3\n";
+
     sellers[i] = offer;
-    lastSellerInserted = i;
     currSellers++;
   } // if a incoming seller
-} // addToBidderAr()
+} // addToStock()
 
 
 bool Stock::bidderTransaction(Transaction& t)
 {
-  //cout << " starting bidder transaction\n";
 //bidder comes in and need to check against multiple sellers
   Offer &recentBidder = bidders.getRecentBidder(); //find recentBidder
 
@@ -49,7 +46,7 @@ bool Stock::bidderTransaction(Transaction& t)
   {
     if(sellers[i].price <= recentBidder.price)
     {
-      if(sellers[i].time > recentBidder.time)
+      if(sellers[i].time > recentBidder.time) 
         t.time = sellers[i].time;
       else
         t.time = recentBidder.time;
@@ -61,10 +58,9 @@ bool Stock::bidderTransaction(Transaction& t)
 
       if(sellers[i].shares == recentBidder.shares)
       {
-       // cout << "SELLERS = BUYERS, recentBidder.shares = " << recentBidder.shares << " and name is " << recentBidder.symbol << endl;
         t.shares = recentBidder.shares;
         shiftSellerArray(i);
-        bidders.deleteRecentOffer();
+        bidders.deleteRecentOffer(); 
         //cout << t;
         return true;
       } //update both arrays
@@ -85,7 +81,7 @@ bool Stock::bidderTransaction(Transaction& t)
         //cout << t;
         return true;
       } // upate the stock's seller list
-    }
+    } 
   }
   return false;
 } // bidderTransaction() goes through list of sellers for a stock
@@ -97,7 +93,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
   Offer &highest = bidders.findMax(), secondHighest = bidders.getSecondMax();
   if(highest.price < sellers[sIndex].price)
     return false;
-
+ 
   if(highest.time > sellers[sIndex].time) // pick the larger time
     t.time = highest.time;
   else
@@ -111,7 +107,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
     t.price = secondHighest.price;
   else
     t.price = sellers[sIndex].price;
-
+  
   if(highest.shares == sellers[sIndex].shares)
   {
     t.shares = sellers[sIndex].shares;
@@ -134,7 +130,7 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
   {
     t.shares = highest.shares;
     sellers[sIndex].shares -= highest.shares;
-    bidders.deleteMax();
+    bidders.deleteMax(); 
     //cout << t;
   } // bidders ask for less than what seller offers
   return true;
@@ -143,32 +139,11 @@ bool Stock::sellerTransaction(int sIndex, Transaction& t)
 
 int Stock::findSeller(Offer& offer)
 {
-  //for(int i = 0; i < currSellers; i++)
-    //if(sellers[i].time == offer.time)
-      //return i;
-  //return -1;
-  if(sellers[lastSellerInserted].time == offer.time)
-    return lastSellerInserted;
-  else
-    return -1;
+  for(int i = 0; i < currSellers; i++)
+    if(sellers[i].time == offer.time)
+      return i;
+  return -1;
 } //find indiviual bidder in the bidder array
-
-
-char* Stock::getName()
-{
-  return name;
-}
-
-
-
-
-
-void Stock::printSellers()
-{
-  for(int j = 0; j < currSellers; j++)
-    cout << sellers[j].time << " " << sellers[j].price << endl;
-
-} //printSellers
 
 
 
@@ -186,10 +161,3 @@ void Stock::setName(const char *n)
   strcpy(name, n);
 } // setName()
 
-
-/*bool Stock::operator!=(const Stock *rhs)
-{
-  cout << "in overload\n";
-  return true;
-  //return (getName() != rhs->getName());
-}*/

@@ -12,13 +12,10 @@ class Stock
 {
 private:
   char name[7];
-  int currBidders;
   int currSellers;
-  int lastSellerInserted;
-
   MaxBinaryHeap bidders;
   Offer sellers[500];
-
+ 
 public:
   Stock();
   ~Stock();
@@ -26,12 +23,9 @@ public:
   bool bidderTransaction(Transaction& t);
   bool sellerTransaction(int sIndex, Transaction& t);
   int findSeller(Offer &offer);
-  char* getName();
-  int getCurrBidders() { return currBidders; }
-  void printSellers();
+  char* getName() { return name; }
   void shiftSellerArray(int index);
   void setName(const char *n);
-  //bool operator!=(const Stock *rhs);
 }; // class Stock
 
 

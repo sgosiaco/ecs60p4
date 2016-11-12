@@ -1,4 +1,3 @@
-// Author: Sean Davis
 #include "market.h"
 #include "stock.h"
 using namespace std;
@@ -47,6 +46,7 @@ bool Market::newTransaction(Transaction *transaction)
   temp.setName(recentOffer.symbol);
   stockPtr = tableStocks.find(&temp);
 
+  //cout << recentOffer.symbol << " " << recentOffer.price << " " << recentOffer.type << endl;
   if(recentOffer.type == 'B')
   {
     if(stockPtr->bidderTransaction(*transaction))
